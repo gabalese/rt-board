@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real time bulletin board</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js"></script>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/slate/bootstrap.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body ng-app="bulletinboard">
+<div class="container">
+<div class="row" ng-controller="messageList">
+<ul>
+    <li ng-repeat="message in messages">
+        <em ng-bind="message.title"></em>
+        <strong ng-bind="message.author"></strong>
+        <span ng-bind="message.text"></span>
+    </li>
+</ul>
+</div>
+<div id="what" class="row">
+    <!--
+     Istruzioni per l'uso
+    -->
+</div>
+<div id="form" ng-controller="messageForm" class="row">
+    <form class="form" method="POST" ng-submit="sendForm()">
+        <div class="form-group">
+            <label>Autore (facoltativo)</label>
+            <input type="text" class="form-control" ng-model="formData.author" placeholder="Anonymous"/>
+            <label>Titolo</label>
+            <input type="text" class="form-control" ng-model="formData.title" placeholder="Titolo">
+            <label>Testo</label>
+            <textarea class="form-control" ng-model="formData.text" placeholder="Text"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Submit!</button>
+    </form>
+</div>
+</div>
+</body>
+<script>
+    var app = angular.module('bulletinboard', []);
+
+    function messageList($scope, $http){
+        $scope.messages = [];
+        $scope.lastOne = 0;
+                (function update(){
+                    $http.get('update/'+$scope.lastOne).success(function(data){
+                        $scope.messages.push.apply($scope.messages, data);
+                        $scope.lastOne = data[data.length-1].id;
+                        update();
+                    }).error(function(){
+                        update();
+                        }
+                    );
+                })();
+    }
+
+    function messageForm($scope, $http){
+        $scope.formData = {};
+
+        $scope.sendForm = function(){
+            $http({
+                method: "POST",
+                url: "messages/",
+                data: $.param($scope.formData),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            }).success(function(data){
+                console.log(data);
+            })
+        }
+
+    }
+</script>
+</html>

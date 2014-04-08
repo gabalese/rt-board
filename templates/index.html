@@ -3,39 +3,47 @@
 <head>
     <title>Real time bulletin board</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.1/angular.min.js"></script>
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/slate/bootstrap.min.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body ng-app="bulletinboard">
 <div class="container">
-<div class="row" ng-controller="messageList">
-<ul>
-    <li ng-repeat="message in messages">
-        <em ng-bind="message.title"></em>
-        <strong ng-bind="message.author"></strong>
-        <span ng-bind="message.text"></span>
-    </li>
-</ul>
+    <div class="page-header">
+        <h1>Real time bulletin board
+        <small>See <a href="https://github.com/gabalese/rt-board">gabalese/rt-board</a></small>
+        </h1>
+    </div>
 </div>
-<div id="what" class="row">
-    <!--
-     Istruzioni per l'uso
-    -->
+<div class="container">
+    <div ng-controller="messageList">
+    <h4>Updates</h4>
+    <ul>
+        <li ng-repeat="message in messages | reverse">
+            <em ng-bind="message.title"></em>
+            <strong ng-bind="message.author"></strong>
+            <span ng-bind="message.text"></span>
+            <span ng-bind="message.time"></span>
+            <span ng-show="(currentTs - message.time) < 10">NUOVO!</span>
+        </li>
+    </ul>
+        <p ng-bind="currentTs"></p>
+    </div>
 </div>
-<div id="form" ng-controller="messageForm" class="row">
-    <form class="form" method="POST" ng-submit="sendForm()">
-        <div class="form-group">
-            <label>Autore (facoltativo)</label>
-            <input type="text" class="form-control" ng-model="formData.author" placeholder="Anonymous"/>
-            <label>Titolo</label>
-            <input type="text" class="form-control" ng-model="formData.title" placeholder="Titolo">
-            <label>Testo</label>
-            <textarea class="form-control" ng-model="formData.text" placeholder="Text"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary btn-block">Submit!</button>
-    </form>
-</div>
+<div class="container">
+    <div id="form" ng-controller="messageForm">
+        <form class="form" method="POST" ng-submit="sendForm()">
+            <div class="form-group">
+                <label>Autore (facoltativo)</label>
+                <input type="text" class="form-control" ng-model="formData.author" placeholder="Anonymous"/>
+                <label>Titolo</label>
+                <input type="text" class="form-control" ng-model="formData.title" placeholder="Titolo">
+                <label>Testo</label>
+                <textarea class="form-control" ng-model="formData.text" placeholder="Text"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Submit!</button>
+        </form>
+    </div>
 </div>
 </body>
 <script>
@@ -43,11 +51,13 @@
 
     function messageList($scope, $http){
         $scope.messages = [];
+        $scope.currentTs = Date.now() / 1000;
         $scope.lastOne = 0;
                 (function update(){
                     $http.get('update/'+$scope.lastOne).success(function(data){
                         $scope.messages.push.apply($scope.messages, data);
                         $scope.lastOne = data[data.length-1].id;
+                        $scope.currentTs = Date.now() / 1000;
                         update();
                     }).error(function(){
                         update();
@@ -69,7 +79,12 @@
                 console.log(data);
             })
         }
-
     }
+
+    app.filter('reverse', function() {
+        return function(items) {
+            return items.slice().reverse();
+        };
+    });
 </script>
 </html>

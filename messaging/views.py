@@ -5,7 +5,7 @@ import time
 from django.http import HttpResponse, StreamingHttpResponse
 from django.shortcuts import render_to_response
 
-from haas.models import *
+from messaging.models import *
 
 
 def ping(request):

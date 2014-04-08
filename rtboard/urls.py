@@ -5,8 +5,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
                        url(r'^admin/', include(admin.site.urls)),
-                       url(r'^ping/$', 'haas.views.ping'),
-                       url(r'^messages/$', 'haas.views.submit_message'),
-                       url(r'^messages/(.+)$', 'haas.views.show_single_message'),
-                       url(r'^updates/(\d+)$', 'haas.views.updates_show'),
-                       url(r'^$', 'haas.views.main_view'))
+                       url(r'^ping/$', 'messaging.views.ping'),
+                       url(r'^messages/$', 'messaging.views.submit_message'),
+                       url(r'^messages/(.+)$', 'messaging.views.show_single_message'),
+                       url(r'^updates/(\d+)$', 'messaging.views.updates_show'),
+                       url(r'^$', 'messaging.views.main_view'))

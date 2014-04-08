@@ -9,7 +9,7 @@ import os
 import time
 
 import rtboard.wsgi
-from haas.models import *
+from messaging.models import *
 
 
 class ListMessages(tornado.web.RequestHandler):
@@ -22,7 +22,8 @@ class ListMessages(tornado.web.RequestHandler):
         output_dictionary = [{"title": message.title,
                               "author": message.author.name,
                               "text": message.text,
-                              "id": message.pk}
+                              "id": message.pk,
+                              "time": message.publication_date.strftime("%s")}
                              for message in response]
 
         self.write(json.JSONEncoder().encode(output_dictionary))

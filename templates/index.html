@@ -23,11 +23,9 @@
             <em ng-bind="message.title"></em>
             <strong ng-bind="message.author"></strong>
             <span ng-bind="message.text"></span>
-            <span ng-bind="message.time"></span>
-            <span ng-show="(currentTs - message.time) < 10">NUOVO!</span>
+            <span ng-show="(currentTs - message.time) < 10" class="label label-success">NEW</span>
         </li>
     </ul>
-        <p ng-bind="currentTs"></p>
     </div>
 </div>
 <div class="container">

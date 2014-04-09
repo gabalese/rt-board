@@ -23,6 +23,7 @@
             <em ng-bind="message.title"></em>
             <strong ng-bind="message.author"></strong>
             <span ng-bind="message.text"></span>
+            (<span ng-bind="message.time | time_ago"></span> ago)
             <span ng-show="(currentTs - message.time) < 10" class="label label-success">NEW</span>
         </li>
     </ul>
@@ -83,6 +84,49 @@
         return function(items) {
             return items.slice().reverse();
         };
+    });
+
+    app.filter('time_ago', function(){
+        // I know, there are jquery filters for this, but I felt lazy:
+        // http://stackoverflow.com/a/13323160
+        return function(ts){
+            var now = new Date();
+            ts = new Date(ts * 1000);
+            var delta = now.getTime() - ts.getTime();
+
+            delta = delta / 1000; //us to s
+
+            var ps, pm, ph, pd, min, hou, sec, days;
+
+            if (delta <= 59) {
+                ps = (delta > 1) ? "s" : "";
+                return Math.round(delta) + " second" + ps
+            }
+
+            if (delta >= 60 && delta <= 3599) {
+                min = Math.floor(delta / 60);
+                sec = delta - (min * 60);
+                pm = (min > 1) ? "s" : "";
+                ps = (sec > 1) ? "s" : "";
+                return min + " minute" + pm;
+            }
+
+            if (delta >= 3600 && delta <= 86399) {
+                hou = Math.floor(delta / 3600);
+                min = Math.floor((delta - (hou * 3600)) / 60);
+                ph = (hou > 1) ? "s" : "";
+                pm = (min > 1) ? "s" : "";
+                return hou + " hour" + ph;
+            }
+
+            if (delta >= 86400) {
+                days = Math.floor(delta / 86400);
+                hou = Math.floor((delta - (days * 86400)) / 60 / 60);
+                pd = (days > 1) ? "s" : "";
+                ph = (hou > 1) ? "s" : "";
+                return days + " day" + pd;
+            }
+        }
     });
 </script>
 </html>

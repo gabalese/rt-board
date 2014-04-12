@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title></title>
+    <title>{{ message.title }}</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.1.1/slate/bootstrap.min.css" />
 </head>
 <body>
-<div>
-    {{ message.title }},
-    {{ message.author }}
-    <br>
-    {{ message.text }}
+<div class="container">
+    <div class="page-header">
+        <h1>{{ message.title }} <small>by {{ message.author }}</small></h1>
+    </div>
+    <div class="row">
+        {{ message.text }}
+    </div>
 </div>
 </body>
 </html>

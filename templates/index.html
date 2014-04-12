@@ -16,16 +16,19 @@
     </div>
 </div>
 <div class="container">
-    <div ng-controller="messageList">
+    <div ng-controller="messageList" style="height: 200px; overflow-y: auto;">
     <h4>Updates</h4>
     <ul>
+        {% verbatim %}
         <li ng-repeat="message in messages | reverse">
-            <em ng-bind="message.title"></em>
-            <strong ng-bind="message.author"></strong>
-            <span ng-bind="message.text"></span>
-            (<span ng-bind="message.time | time_ago"></span> ago)
-            <span ng-show="(currentTs - message.time) < 10" class="label label-success">NEW</span>
+            <a ng-href="messages/{{message.id}}">
+            <span ng-bind="message.title"></span> by <strong ng-bind="message.author"></strong>
+            <em>(<span ng-bind="message.time | time_ago"></span> ago)</em>
+            </a>
+            <span ng-show="(message.time | from_now) < 10" class="label label-success">NEW</span>
+            <p ng-bind="message.text"></p>
         </li>
+        {% endverbatim %}
     </ul>
     </div>
 </div>
@@ -33,11 +36,11 @@
     <div id="form" ng-controller="messageForm">
         <form class="form" method="POST" ng-submit="sendForm()">
             <div class="form-group">
-                <label>Autore (facoltativo)</label>
+                <label>Author <em>(optional)</em></label>
                 <input type="text" class="form-control" ng-model="formData.author" placeholder="Anonymous"/>
-                <label>Titolo</label>
+                <label>Title</label>
                 <input type="text" class="form-control" ng-model="formData.title" placeholder="Titolo">
-                <label>Testo</label>
+                <label>Message</label>
                 <textarea class="form-control" ng-model="formData.text" placeholder="Text"></textarea>
             </div>
             <button type="submit" class="btn btn-primary btn-block">Submit!</button>
@@ -50,13 +53,11 @@
 
     function messageList($scope, $http){
         $scope.messages = [];
-        $scope.currentTs = Date.now() / 1000;
         $scope.lastOne = 0;
                 (function update(){
                     $http.get('update/'+$scope.lastOne).success(function(data){
                         $scope.messages.push.apply($scope.messages, data);
                         $scope.lastOne = data[data.length-1].id;
-                        $scope.currentTs = Date.now() / 1000;
                         update();
                     }).error(function(){
                         update();
@@ -86,6 +87,16 @@
         };
     });
 
+    app.filter('from_now', function(){
+        return function(ts){
+            var now = new Date();
+            ts = new Date(ts * 1000);
+            var delta = now.getTime() - ts.getTime();
+            delta = delta / 1000;
+            return delta
+        }
+    })
+
     app.filter('time_ago', function(){
         // I know, there are jquery filters for this, but I felt lazy:
         // http://stackoverflow.com/a/13323160
@@ -105,25 +116,19 @@
 
             if (delta >= 60 && delta <= 3599) {
                 min = Math.floor(delta / 60);
-                sec = delta - (min * 60);
                 pm = (min > 1) ? "s" : "";
-                ps = (sec > 1) ? "s" : "";
                 return min + " minute" + pm;
             }
 
             if (delta >= 3600 && delta <= 86399) {
                 hou = Math.floor(delta / 3600);
-                min = Math.floor((delta - (hou * 3600)) / 60);
                 ph = (hou > 1) ? "s" : "";
-                pm = (min > 1) ? "s" : "";
                 return hou + " hour" + ph;
             }
 
             if (delta >= 86400) {
                 days = Math.floor(delta / 86400);
-                hou = Math.floor((delta - (days * 86400)) / 60 / 60);
                 pd = (days > 1) ? "s" : "";
-                ph = (hou > 1) ? "s" : "";
                 return days + " day" + pd;
             }
         }
